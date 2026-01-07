@@ -92,22 +92,17 @@ function setupEventListeners() {
         }
     });
     
+    // View stats
+    document.getElementById('viewStats').addEventListener('click', () => {
+        chrome.tabs.create({ url: 'stats/stats.html' });
+    });
+    
     // Disconnect
     disconnectBtn.addEventListener('click', async () => {
         if (confirm('Are you sure you want to disconnect GitHub?')) {
             await chrome.storage.local.remove(['github_token', 'github_user', 'github_repo']);
             showConnectionSection();
         }
-    });
-    
-    // Select repository
-    document.getElementById('selectRepo').addEventListener('click', () => {
-        chrome.runtime.sendMessage({ action: 'select_repository' });
-    });
-    
-    // View stats
-    document.getElementById('viewStats').addEventListener('click', () => {
-        chrome.tabs.create({ url: 'stats/stats.html' });
     });
     
     // Settings change listeners

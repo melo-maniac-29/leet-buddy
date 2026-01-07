@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetBuddy Stats</title>
+    <link rel="stylesheet" href="stats.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="../assets/icon-48.png" alt="LeetBuddy" class="logo">
+            <h1>Your LeetCode Progress</h1>
+        </div>
+
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="totalSolved">0</div>
+                <div class="stat-label">Problems Solved</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">📤</div>
+                <div class="stat-value" id="totalSynced">0</div>
+                <div class="stat-label">Synced to GitHub</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">🎉</div>
+                <div class="stat-value" id="totalContributed">0</div>
+                <div class="stat-label">Contributions</div>
+            </div>
+        </div>
+
+        <div class="difficulty-breakdown">
+            <h2>By Difficulty</h2>
+            <div class="difficulty-grid">
+                <div class="difficulty-card easy">
+                    <div class="difficulty-label">Easy</div>
+                    <div class="difficulty-value" id="easyCount">0</div>
+                </div>
+                <div class="difficulty-card medium">
+                    <div class="difficulty-label">Medium</div>
+                    <div class="difficulty-value" id="mediumCount">0</div>
+                </div>
+                <div class="difficulty-card hard">
+                    <div class="difficulty-label">Hard</div>
+                    <div class="difficulty-value" id="hardCount">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="recent-activity">
+            <h2>Recent Activity</h2>
+            <div id="activityList" class="activity-list">
+                <p class="empty-state">No activity yet. Start solving problems!</p>
+            </div>
+        </div>
+
+        <div class="github-section">
+            <h2>GitHub Repository</h2>
+            <div id="repoInfo" class="repo-info">
+                <p class="empty-state">No repository connected</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="stats.js"></script>
+</body>
+</html>

@@ -44,7 +44,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             
         case 'select_repository':
             selectRepository()
-                .then(() => sendResponse({ success: true }))
+                .then((result) => sendResponse({ success: true, repo: result.repo }))
                 .catch(error => sendResponse({ success: false, error: error.message }));
             return true;
             
@@ -113,6 +113,10 @@ async function authenticateGitHub() {
         });
         
         console.log('GitHub authentication successful');
+        
+        // Auto-create/select repository
+        await selectRepository();
+        
         return userData;
         
     } catch (error) {
@@ -124,14 +128,20 @@ async function authenticateGitHub() {
 // Select repository for syncing
 async function selectRepository() {
     try {
-        const { github_token } = await chrome.storage.local.get(['github_token']);
+        const { github_token, github_repo } = await chrome.storage.local.get(['github_token', 'github_repo']);
         
         if (!github_token) {
             throw new Error('Not authenticated with GitHub');
         }
         
+        // If repo already configured, don't recreate
+        if (github_repo) {
+            console.log('Repository already configured:', github_repo);
+            return { repo: github_repo };
+        }
+        
         // Get user's repositories
-        const response = await fetch(`${GITHUB_API}/user/repos?type=owner&sort=updated`, {
+        const response = await fetch(`${GITHUB_API}/user/repos?type=owner&sort=updated&per_page=100`, {
             headers: {
                 'Authorization': `token ${github_token}`,
                 'Accept': 'application/vnd.github.v3+json'
@@ -140,12 +150,13 @@ async function selectRepository() {
         
         const repos = await response.json();
         
-        // For now, create or use 'leetcode-solutions' repo
-        const repoName = 'leetcode-solutions';
+        // Use 'leetbuddy-solutions' repo
+        const repoName = 'leetbuddy-solutions';
         let selectedRepo = repos.find(r => r.name === repoName);
         
         if (!selectedRepo) {
             // Create new repository
+            console.log('Creating new repository:', repoName);
             const createResponse = await fetch(`${GITHUB_API}/user/repos`, {
                 method: 'POST',
                 headers: {
@@ -162,6 +173,9 @@ async function selectRepository() {
             });
             
             selectedRepo = await createResponse.json();
+            console.log('✅ Created new repository:', selectedRepo.full_name);
+        } else {
+            console.log('✅ Found existing repository:', selectedRepo.full_name);
         }
         
         // Store selected repository
@@ -169,8 +183,8 @@ async function selectRepository() {
             github_repo: selectedRepo.full_name
         });
         
-        console.log('Repository selected:', selectedRepo.full_name);
-        return selectedRepo;
+        console.log('Repository configured:', selectedRepo.full_name);
+        return { repo: selectedRepo.full_name };
         
     } catch (error) {
         console.error('Failed to select repository:', error);
