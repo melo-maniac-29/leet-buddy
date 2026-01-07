@@ -1,9 +1,8 @@
 // Background service worker for LeetBuddy extension
 
-// GitHub OAuth configuration
+// GitHub OAuth configuration (ONLY Client ID - Secret stays on GitHub!)
 const GITHUB_CLIENT_ID = 'YOUR_GITHUB_CLIENT_ID'; // Get from https://github.com/settings/developers
-const GITHUB_CLIENT_SECRET = 'YOUR_GITHUB_CLIENT_SECRET'; // Get from OAuth app
-const GITHUB_REDIRECT_URI = chrome.identity.getRedirectURL();
+const GITHUB_REDIRECT_URI = chrome.identity.getRedirectURL('github');
 
 // API endpoints
 const LEETBUDDY_API = 'http://localhost:8000';
@@ -49,10 +48,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 });
 
-// GitHub OAuth authentication
+// GitHub OAuth authentication (Secure - no client secret exposed!)
 async function authenticateGitHub() {
     try {
-        // Use Chrome Identity API for OAuth
+        // Step 1: Get authorization code from GitHub
         const authUrl = `https://github.com/login/oauth/authorize?` +
             `client_id=${GITHUB_CLIENT_ID}&` +
             `redirect_uri=${encodeURIComponent(GITHUB_REDIRECT_URI)}&` +
@@ -71,30 +70,23 @@ async function authenticateGitHub() {
             throw new Error('No authorization code received');
         }
         
-        // Exchange code for access token
-        const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+        // Step 2: Exchange code via backend (keeps secret secure!)
+        const tokenResponse = await fetch(`${LEETBUDDY_API}/api/github/exchange-token`, {
             method: 'POST',
             headers: {
-                'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                client_id: GITHUB_CLIENT_ID,
-                client_secret: GITHUB_CLIENT_SECRET,
-                code: code,
-                redirect_uri: GITHUB_REDIRECT_URI
-            })
+            body: JSON.stringify({ code })
         });
         
-        const tokenData = await tokenResponse.json();
-        
-        if (tokenData.error) {
-            throw new Error(tokenData.error_description || 'Failed to get access token');
+        if (!tokenResponse.ok) {
+            throw new Error('Failed to exchange authorization code');
         }
         
+        const tokenData = await tokenResponse.json();
         const accessToken = tokenData.access_token;
         
-        // Get user info
+        // Step 3: Get user info
         const userResponse = await fetch(`${GITHUB_API}/user`, {
             headers: {
                 'Authorization': `token ${accessToken}`,

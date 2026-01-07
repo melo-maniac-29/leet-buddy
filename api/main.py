@@ -210,6 +210,48 @@ def health_check(db: Session = Depends(get_db)):
         return {"status": "unhealthy", "error": str(e)}
 
 
+# OAuth token exchange endpoint (keeps client secret secure!)
+@app.post("/api/github/exchange-token")
+async def exchange_github_token(request: dict):
+    """
+    Exchange GitHub OAuth code for access token
+    This keeps the client secret on the server (secure!)
+    """
+    try:
+        code = request.get("code")
+        if not code:
+            raise HTTPException(status_code=400, detail="Authorization code required")
+        
+        # Exchange code for token using GitHub API
+        import httpx
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://github.com/login/oauth/access_token",
+                headers={
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "client_id": os.getenv("GITHUB_CLIENT_ID"),
+                    "client_secret": os.getenv("GITHUB_CLIENT_SECRET"),
+                    "code": code
+                }
+            )
+            
+            if response.status_code != 200:
+                raise HTTPException(status_code=400, detail="Failed to exchange token")
+            
+            data = response.json()
+            
+            if "error" in data:
+                raise HTTPException(status_code=400, detail=data.get("error_description", "Token exchange failed"))
+            
+            return {"access_token": data.get("access_token")}
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
