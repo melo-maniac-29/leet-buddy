@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LeetBuddy</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <img src="../assets/icon-48.png" alt="LeetBuddy">
+                <h1>LeetBuddy</h1>
+            </div>
+            <div class="header-actions">
+                <button id="settingsBtn" class="icon-btn" title="Settings">⚙️</button>
+                <button id="githubBtn" class="github-btn">
+                    <span id="githubIcon">🔗</span>
+                    <span id="githubText">Connect GitHub</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Home View -->
+        <div id="homeView" class="view active">
+            <div class="section-header">
+                <h2>🗺️ Learning Roadmaps</h2>
+                <span class="badge">6 options</span>
+            </div>
+            
+            <div id="loadingHome" class="loading">
+                <div class="spinner"></div>
+                <p>Loading roadmaps...</p>
+            </div>
+            
+            <div id="roadmapCards" class="cards-grid"></div>
+        </div>
+
+        <!-- Roadmap Detail View -->
+        <div id="detailView" class="view">
+            <button id="backBtn" class="back-btn">← Back</button>
+            
+            <div class="section-header">
+                <h2 id="detailTitle"></h2>
+                <span id="detailCount" class="badge"></span>
+            </div>
+            
+            <div id="loadingDetail" class="loading">
+                <div class="spinner"></div>
+                <p>Loading problems...</p>
+            </div>
+            
+            <div id="problemsList" class="problems-list"></div>
+        </div>
+
+        <!-- Topics View -->
+        <div id="topicsView" class="view">
+            <button id="backTopics" class="back-btn">← Back</button>
+            
+            <div class="section-header">
+                <h2>📚 71 Topics by Learning Order</h2>
+            </div>
+            
+            <div id="loadingTopics" class="loading">
+                <div class="spinner"></div>
+                <p>Loading topics...</p>
+            </div>
+            
+            <div id="topicsCards" class="cards-grid"></div>
+        </div>
+
+        <!-- Settings View -->
+        <div id="settingsView" class="view">
+            <button id="backSettings" class="back-btn">← Back</button>
+            
+            <div class="settings-section">
+                <h3>⚙️ Settings</h3>
+                
+                <div class="setting-group">
+                    <label>Backend API URL</label>
+                    <input type="text" id="apiUrl" placeholder="http://localhost:8001" value="http://localhost:8001">
+                    <small>LeetBuddy backend server address</small>
+                </div>
+                
+                <div class="setting-group">
+                    <label>Auto-sync to GitHub</label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="autoSync" checked>
+                        <span>Automatically sync solutions after submission</span>
+                    </label>
+                </div>
+                
+                <button id="saveSettings" class="btn-primary">Save Settings</button>
+                <button id="testConnection" class="btn-secondary">Test Connection</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

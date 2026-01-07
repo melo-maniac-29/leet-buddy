@@ -1,0 +1,55 @@
+{
+  "manifest_version": 3,
+  "name": "LeetBuddy",
+  "description": "Auto-sync LeetCode solutions to GitHub with curated roadmaps",
+  "version": "1.0.0",
+  "author": "LeetBuddy Team",
+  
+  "action": {
+    "default_title": "LeetBuddy - Open Roadmaps"
+  },
+  
+  "side_panel": {
+    "default_path": "panel/index.html"
+  },
+  
+  "icons": {
+    "16": "assets/icon-16.png",
+    "48": "assets/icon-48.png",
+    "128": "assets/icon-128.png"
+  },
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "identity",
+    "sidePanel"
+  ],
+  
+  "host_permissions": [
+    "https://leetcode.com/*",
+    "https://api.github.com/*",
+    "https://github.com/*",
+    "http://localhost:8001/*"
+  ],
+  
+  "content_scripts": [
+    {
+      "matches": ["https://leetcode.com/problems/*"],
+      "js": ["content/detector.js", "content/notes.js"],
+      "css": ["content/styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*"],
+      "matches": ["https://leetcode.com/*"]
+    }
+  ]
+}

@@ -1,0 +1,327 @@
+/* LeetBuddy Panel Styles */
+
+#panel-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 24px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    z-index: 99998;
+    transition: all 0.2s;
+}
+
+#panel-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+}
+
+#leetbuddy-panel {
+    position: fixed;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    z-index: 99999;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 300px;
+    min-height: 400px;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+#leetbuddy-panel.open {
+    display: flex;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    cursor: move;
+    user-select: none;
+}
+
+.panel-tabs {
+    display: flex;
+    gap: 8px;
+}
+
+.panel-tab {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.panel-tab:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.panel-tab.active {
+    background: white;
+    color: #667eea;
+}
+
+.panel-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.panel-controls button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.panel-controls button:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.panel-view {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.panel-view.active {
+    display: flex;
+}
+
+/* Notes View */
+#leetbuddy-notes {
+    flex: 1;
+    border: none;
+    padding: 16px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 13px;
+    resize: none;
+    outline: none;
+}
+
+.panel-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+#notesTemplate {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+#notesTemplate:hover {
+    background: #5568d3;
+}
+
+.notes-saved {
+    font-size: 12px;
+    color: #10b981;
+    font-weight: 600;
+    transition: opacity 0.3s;
+}
+
+/* Chat View */
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.chat-message {
+    padding: 12px;
+    border-radius: 8px;
+    max-width: 85%;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.chat-message.user {
+    background: #667eea;
+    color: white;
+    align-self: flex-end;
+    margin-left: auto;
+}
+
+.chat-message.assistant {
+    background: #f3f4f6;
+    color: #1f2937;
+    align-self: flex-start;
+}
+
+.chat-input-container {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px solid #e5e7eb;
+}
+
+#chatInput {
+    flex: 1;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    resize: none;
+    font-family: inherit;
+}
+
+#chatSend {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+#chatSend:hover {
+    background: #5568d3;
+}
+
+.chat-suggestions {
+    display: flex;
+    gap: 8px;
+    padding: 0 12px 12px;
+    flex-wrap: wrap;
+}
+
+.suggestion-btn {
+    background: white;
+    border: 1px solid #e5e7eb;
+    padding: 6px 10px;
+    border-radius: 16px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: all 0.2s;
+}
+
+.suggestion-btn:hover {
+    background: #f3f4f6;
+    border-color: #667eea;
+}
+
+/* Settings View */
+.settings-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.settings-content h3 {
+    margin-bottom: 16px;
+    color: #1f2937;
+    font-size: 16px;
+}
+
+.setting-group {
+    margin-bottom: 16px;
+}
+
+.setting-group label {
+    display: block;
+    margin-bottom: 6px;
+    color: #4b5563;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.setting-group input[type="text"],
+.setting-group input[type="password"],
+.setting-group select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.setting-group input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.settings-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.btn-primary {
+    flex: 1;
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background: #5568d3;
+}
+
+.btn-secondary {
+    flex: 1;
+    background: white;
+    color: #667eea;
+    border: 1px solid #667eea;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-secondary:hover {
+    background: #f3f4f6;
+}
+
+/* Resize Handle */
+.resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    cursor: nwse-resize;
+    background: linear-gradient(135deg, transparent 50%, #667eea 50%);
+    border-bottom-right-radius: 12px;
+}
+
+.resize-handle:hover {
+    background: linear-gradient(135deg, transparent 50%, #5568d3 50%);
+}
+
