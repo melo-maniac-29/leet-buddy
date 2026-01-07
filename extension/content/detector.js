@@ -1,6 +1,10 @@
 // LeetCode Submission Detector
 
-const API_BASE = 'http://localhost:8001';
+// Get API URL from storage
+async function getApiUrl() {
+    const { apiUrl } = await chrome.storage.local.get(['apiUrl']);
+    return apiUrl || 'http://localhost:8001';
+}
 
 // Detect successful submission
 let lastSubmission = null;
@@ -62,6 +66,8 @@ async function handleSuccessfulSubmission(submissionData) {
     
     // Save to database
     try {
+        const API_BASE = await getApiUrl();
+        
         const response = await fetch(`${API_BASE}/api/progress/save`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -82,11 +88,10 @@ async function handleSuccessfulSubmission(submissionData) {
                         showNotification('✓ Synced to GitHub!');
                         
                         // Update database with GitHub sync status
-                        fetch(`${API_BASE}/api/progress/${result.id}/github-sync`, {
+                        fetch(`${API_BASE}/api/progress/${result.progress_id}/github-sync`, {
                             method: 'PATCH',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ 
-                                github_synced: true,
                                 github_url: response.result.url
                             })
                         });
@@ -140,3 +145,62 @@ function showNotification(message) {
     
     setTimeout(() => notification.remove(), 3000);
 }
+
+// Detect current problem and notify side panel
+function detectAndNotifyProblem() {
+    const problemTitle = document.querySelector('[data-cy="question-title"]')?.textContent;
+    const problemSlug = window.location.pathname.split('/problems/')[1]?.split('/')[0];
+    
+    if (problemTitle && problemSlug) {
+        // Extract problem ID from page
+        const problemId = extractProblemId();
+        
+        // Send to side panel
+        chrome.runtime.sendMessage({
+            action: 'problem_detected',
+            data: {
+                title: problemTitle,
+                slug: problemSlug,
+                url: window.location.href,
+                problem_id: problemId,
+                difficulty: getDifficulty(),
+                topics: getTopics()
+            }
+        });
+    }
+}
+
+function extractProblemId() {
+    // Try to get from URL or page data
+    const urlMatch = window.location.pathname.match(/\/problems\/([^\/]+)/);
+    if (urlMatch) {
+        // Check page for problem number
+        const titleElement = document.querySelector('[data-cy="question-title"]');
+        if (titleElement) {
+            const fullText = titleElement.textContent;
+            const match = fullText.match(/^(\d+)\./);
+            if (match) {
+                return parseInt(match[1]);
+            }
+        }
+    }
+    return null;
+}
+
+// Initialize problem detection
+if (window.location.pathname.includes('/problems/')) {
+    // Wait for page to load
+    setTimeout(detectAndNotifyProblem, 2000);
+    
+    // Re-detect on navigation
+    let lastUrl = location.href;
+    new MutationObserver(() => {
+        if (location.href !== lastUrl) {
+            lastUrl = location.href;
+            if (location.pathname.includes('/problems/')) {
+                setTimeout(detectAndNotifyProblem, 1000);
+            }
+        }
+    }).observe(document, { subtree: true, childList: true });
+}
+

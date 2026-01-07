@@ -78,12 +78,12 @@
             <button id="backSettings" class="back-btn">← Back</button>
             
             <div class="settings-section">
-                <h3>⚙️ Settings</h3>
+                <h3>⚙️ Backend Settings</h3>
                 
                 <div class="setting-group">
                     <label>Backend API URL</label>
                     <input type="text" id="apiUrl" placeholder="http://localhost:8001" value="http://localhost:8001">
-                    <small>LeetBuddy backend server address</small>
+                    <small>For Docker use: http://host.docker.internal:8001</small>
                 </div>
                 
                 <div class="setting-group">
@@ -94,8 +94,51 @@
                     </label>
                 </div>
                 
-                <button id="saveSettings" class="btn-primary">Save Settings</button>
                 <button id="testConnection" class="btn-secondary">Test Connection</button>
+                
+                <h3 style="margin-top: 24px;">🤖 AI Settings</h3>
+                
+                <div class="setting-group">
+                    <label>AI Provider</label>
+                    <select id="aiProvider">
+                        <option value="">Not configured</option>
+                        <option value="openai">OpenAI</option>
+                        <option value="anthropic">Anthropic</option>
+                        <option value="azure_openai">Azure OpenAI</option>
+                        <option value="ollama">Ollama</option>
+                        <option value="lm_studio">LM Studio</option>
+                        <option value="github_models">GitHub Models</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                
+                <div class="setting-group">
+                    <label>API Base URL (Optional)</label>
+                    <input type="text" id="aiBaseUrl" placeholder="Leave empty for default">
+                    <small>Leave empty to use default provider URL</small>
+                </div>
+                
+                <div class="setting-group">
+                    <label>API Key</label>
+                    <input type="password" id="aiApiKey" placeholder="sk-... or your API key">
+                    <small>Stored securely in backend database</small>
+                </div>
+                
+                <div class="setting-group">
+                    <label>Model</label>
+                    <select id="aiModel">
+                        <option value="gpt-4">GPT-4</option>
+                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                        <option value="claude-3-opus-20240229">Claude 3 Opus</option>
+                        <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
+                        <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
+                    </select>
+                </div>
+                
+                <div id="providerDefaults" class="provider-defaults"></div>
+                
+                <button id="saveSettings" class="btn-primary">Save All Settings</button>
             </div>
         </div>
         

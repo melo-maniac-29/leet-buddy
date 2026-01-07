@@ -4,6 +4,7 @@
   "description": "Auto-sync LeetCode solutions to GitHub with curated roadmaps",
   "version": "1.0.0",
   "author": "LeetBuddy Team",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwoZGKGFCsdCfNSsncRdt8Da/oB2mAQo9/d9yDCsQSySOVs7YYoQKhoEBSA9LFUEYfUqrsLG3qXdxOkWbnvM4qgTa3LDJiC/cyyubwITgR1jS3isa6pE6kNtKvhqOgF5wnQdZ/Wc6EtOUmMZadjCNAM7bCELl4IVJOK6BnX6VUQqwg66zDieanaO3ROBsVf6ftkZwI3ehySRMKDPECHhRFA9XqCMEynM/YnwLDizD8CHNdLOaxPzb9CfaPeQU7hXkL2AjekwOdhj2+KjNv6XoflCPmPAPCwwlZ+ybnMNtquoPe448iASMsGFWXC07NAL5DfZS27Ktskk4olWzpLN9JQIDAQAB",
   
   "action": {
     "default_title": "LeetBuddy - Open Roadmaps"

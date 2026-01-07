@@ -1,11 +1,18 @@
 // LeetBuddy Background Service Worker
 
 // GitHub OAuth
-const GITHUB_CLIENT_ID = 'Ov23litQ9Nqwxi1jEg2h';
+const GITHUB_CLIENT_ID = 'Ov23liLrSlC0TQMHJWOw';
 const GITHUB_REDIRECT_URI = chrome.identity.getRedirectURL('github');
-const API_BASE = 'http://localhost:8001';
+
+// Get API URL from storage or default
+async function getApiUrl() {
+    const { apiUrl } = await chrome.storage.local.get(['apiUrl']);
+    return apiUrl || 'http://localhost:8001';
+}
 
 console.log('🔑 Redirect URI:', GITHUB_REDIRECT_URI);
+console.log('⚠️ Add this URL to GitHub OAuth app settings:');
+console.log('   https://github.com/settings/developers');
 
 // Open side panel when icon clicked
 chrome.action.onClicked.addListener((tab) => {
@@ -27,40 +34,73 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             .catch(error => sendResponse({ success: false, error: error.message }));
         return true;
     }
+    
+    // Forward problem detection to side panel
+    if (message.action === 'problem_detected') {
+        // Message will be received by panel via chrome.runtime.onMessage
+        return false;
+    }
 });
 
 // GitHub Authentication
 async function authenticateGitHub() {
-    const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=repo`;
+    console.log('🔵 Starting GitHub authentication...');
+    const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=repo&redirect_uri=${encodeURIComponent(GITHUB_REDIRECT_URI)}`;
+    console.log('🔵 Auth URL:', authUrl);
     
     return new Promise((resolve, reject) => {
         chrome.identity.launchWebAuthFlow(
             { url: authUrl, interactive: true },
             async (redirectUrl) => {
+                console.log('🔵 Got redirect URL:', redirectUrl);
+                
                 if (chrome.runtime.lastError) {
+                    console.error('❌ Auth error:', chrome.runtime.lastError);
                     reject(chrome.runtime.lastError);
+                    return;
+                }
+                
+                if (!redirectUrl) {
+                    reject(new Error('No redirect URL'));
                     return;
                 }
                 
                 const url = new URL(redirectUrl);
                 const code = url.searchParams.get('code');
+                console.log('🔵 Extracted code:', code ? 'YES' : 'NO');
                 
                 if (!code) {
+                    console.error('❌ No code in redirect URL');
                     reject(new Error('No code received'));
                     return;
                 }
                 
                 try {
+                    const API_BASE = await getApiUrl();
+                    console.log('🔵 API Base:', API_BASE);
+                    console.log('🔵 Exchanging code for token...');
+                    
                     // Exchange code for token
-                    const response = await fetch(`${API_BASE}/api/github/exchange-token?code=${code}`);
+                    const response = await fetch(`${API_BASE}/api/github/exchange-token`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            code: code,
+                            redirect_uri: GITHUB_REDIRECT_URI 
+                        })
+                    });
+                    
                     const data = await response.json();
+                    console.log('🔵 Exchange response:', data.access_token ? 'Got token' : 'No token');
                     
                     if (data.access_token) {
+                        console.log('✅ Access token received');
                         // Get user info
                         const userResponse = await fetch('https://api.github.com/user', {
                             headers: { 'Authorization': `Bearer ${data.access_token}` }
                         });
                         const userData = await userResponse.json();
+                        console.log('✅ User data:', userData.login);
                         
                         // Save to storage
                         await chrome.storage.local.set({
@@ -68,15 +108,18 @@ async function authenticateGitHub() {
                             github_user: userData.login,
                             github_repo: 'leetbuddy-solutions'
                         });
+                        console.log('✅ Saved to storage');
                         
                         // Create repo if doesn't exist
+                        console.log('🔵 Ensuring repo exists...');
                         await ensureRepo(data.access_token, 'leetbuddy-solutions');
                         
                         resolve();
                     } else {
-                        reject(new Error('Failed to get token'));
+                        reject(new Error(data.error || 'Failed to get token'));
                     }
                 } catch (error) {
+                    console.error('Token exchange error:', error);
                     reject(error);
                 }
             }
@@ -87,13 +130,17 @@ async function authenticateGitHub() {
 // Ensure repo exists
 async function ensureRepo(token, repoName) {
     try {
-        const checkResponse = await fetch(`https://api.github.com/repos/${await getUsername(token)}/${repoName}`, {
+        const username = await getUsername(token);
+        console.log('🔵 Checking repo for user:', username);
+        
+        const checkResponse = await fetch(`https://api.github.com/repos/${username}/${repoName}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         
         if (checkResponse.status === 404) {
+            console.log('🔵 Repo not found, creating...');
             // Create repo
-            await fetch('https://api.github.com/user/repos', {
+            const createResponse = await fetch('https://api.github.com/user/repos', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -106,9 +153,21 @@ async function ensureRepo(token, repoName) {
                     auto_init: true
                 })
             });
+            
+            if (createResponse.ok) {
+                console.log('✅ Repo created successfully');
+            } else {
+                const errorData = await createResponse.json();
+                console.error('❌ Failed to create repo:', errorData);
+            }
+        } else if (checkResponse.ok) {
+            console.log('✅ Repo already exists');
+        } else {
+            console.error('❌ Unexpected response when checking repo:', checkResponse.status);
         }
     } catch (error) {
-        console.error('Error ensuring repo:', error);
+        console.error('❌ Error ensuring repo:', error);
+        // Don't throw - allow authentication to complete even if repo creation fails
     }
 }
 

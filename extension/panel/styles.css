@@ -467,6 +467,55 @@ body {
 }
 
 /* Solutions */
+.solution-languages {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.lang-tab {
+    padding: 8px 16px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #6b7280;
+    transition: all 0.2s;
+}
+
+.lang-tab.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+    font-weight: 600;
+}
+
+.lang-tab:hover:not(.active) {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.lang-content {
+    display: none;
+}
+
+.lang-content.active {
+    display: block;
+}
+
+.solution-versions {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 8px 0;
+    padding: 6px;
+    background: #f3f4f6;
+    border-radius: 4px;
+}
+
 .solution-card {
     background: #f9fafb;
     border: 1px solid #e5e7eb;
@@ -620,4 +669,60 @@ body {
     border-color: #667eea;
 }
 
+.chat-input-container button {
+    padding: 8px 16px;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
 
+.chat-input-container button:hover {
+    background: #059669;
+}
+
+/* Provider Defaults */
+.provider-defaults {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+}
+
+.provider-defaults h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.provider-default {
+    margin-bottom: 12px;
+}
+
+.provider-default strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: #1f2937;
+}
+
+.provider-url-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+}
+
+.provider-url-input:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
