@@ -385,3 +385,239 @@ body {
     cursor: not-allowed;
 }
 
+/* Problem View */
+.problem-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.prob-tab {
+    padding: 12px 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #6b7280;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.prob-tab.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+    font-weight: 600;
+}
+
+.prob-tab:hover {
+    color: #667eea;
+    background: #f3f4f6;
+}
+
+.prob-content {
+    display: none;
+    padding: 20px;
+}
+
+.prob-content.active {
+    display: block;
+}
+
+.problem-details {
+    margin-bottom: 20px;
+}
+
+.prob-info {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.topic-tags {
+    font-size: 12px;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.prob-description {
+    background: #f9fafb;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.prob-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.problem-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Solutions */
+.solution-card {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.solution-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.language {
+    background: #667eea;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.date {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.solution-stats {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.solution-card pre {
+    background: #1f2937;
+    color: #f9fafb;
+    padding: 12px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 12px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.solution-card code {
+    font-family: 'Monaco', 'Courier New', monospace;
+}
+
+.solution-notes {
+    background: #fef3c7;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    border-left: 3px solid #f59e0b;
+}
+
+/* Notes textarea */
+#problemNotes {
+    width: 100%;
+    min-height: 300px;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    margin-bottom: 12px;
+}
+
+#problemNotes:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* AI Chat */
+.chat-messages {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+}
+
+.chat-message {
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.chat-message.user {
+    background: #667eea;
+    color: white;
+    margin-left: 20%;
+}
+
+.chat-message.assistant {
+    background: white;
+    border: 1px solid #e5e7eb;
+    margin-right: 20%;
+}
+
+.chat-suggestions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.suggestion-btn {
+    padding: 6px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: white;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.suggestion-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+    background: #f3f4f6;
+}
+
+.chat-input-container {
+    display: flex;
+    gap: 8px;
+}
+
+#chatInput {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    resize: vertical;
+}
+
+#chatInput:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+

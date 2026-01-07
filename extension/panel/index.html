@@ -98,6 +98,58 @@
                 <button id="testConnection" class="btn-secondary">Test Connection</button>
             </div>
         </div>
+        
+        <!-- Problem View -->
+        <div id="problemView" class="view">
+            <button id="backProblem" class="back-btn">← Back</button>
+            
+            <div class="section-header">
+                <h2 id="problemTitle">Current Problem</h2>
+            </div>
+            
+            <div class="problem-tabs">
+                <button class="prob-tab active" data-tab="details">📋 Details</button>
+                <button class="prob-tab" data-tab="solutions">💡 Solutions</button>
+                <button class="prob-tab" data-tab="notes">📝 Notes</button>
+                <button class="prob-tab" data-tab="ai">🤖 AI</button>
+            </div>
+            
+            <!-- Details Tab -->
+            <div id="detailsTab" class="prob-content active">
+                <div id="problemDetails" class="problem-details"></div>
+                <div class="problem-actions">
+                    <button id="openLeetCode" class="btn-primary">Open on LeetCode</button>
+                </div>
+            </div>
+            
+            <!-- Solutions Tab -->
+            <div id="solutionsTab" class="prob-content">
+                <div id="solutionsList"></div>
+            </div>
+            
+            <!-- Notes Tab -->
+            <div id="notesTab" class="prob-content">
+                <textarea id="problemNotes" placeholder="Add your notes here...
+
+These will be saved with your solution."></textarea>
+                <button id="saveNotes" class="btn-primary">Save Notes</button>
+            </div>
+            
+            <!-- AI Tab -->
+            <div id="aiTab" class="prob-content">
+                <div id="chatMessages" class="chat-messages"></div>
+                <div class="chat-suggestions">
+                    <button class="suggestion-btn" data-prompt="Explain the problem">💡 Explain</button>
+                    <button class="suggestion-btn" data-prompt="Give me a hint">💭 Hint</button>
+                    <button class="suggestion-btn" data-prompt="What's the optimal approach?">🎯 Approach</button>
+                    <button class="suggestion-btn" data-prompt="Analyze time complexity">⏱️ Complexity</button>
+                </div>
+                <div class="chat-input-container">
+                    <textarea id="chatInput" placeholder="Ask me anything about this problem..." rows="2"></textarea>
+                    <button id="chatSend" class="btn-primary">Send</button>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script src="app.js"></script>
