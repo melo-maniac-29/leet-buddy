@@ -1,0 +1,269 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 380px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: #f5f5f5;
+}
+
+.container {
+    background: white;
+}
+
+/* Header */
+.header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.logo {
+    width: 32px;
+    height: 32px;
+}
+
+.header h1 {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* Status */
+.status-section {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #dc2626;
+    animation: pulse 2s infinite;
+}
+
+.status-indicator.connected .status-dot {
+    background: #10b981;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+#statusText {
+    font-size: 14px;
+    color: #666;
+}
+
+/* Connection Section */
+.connection-section {
+    padding: 30px 20px;
+    text-align: center;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: #24292f;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #1f2328;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #f5f5f5;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.btn-secondary:hover {
+    background: #e5e5e5;
+}
+
+.btn-danger {
+    background: #fee;
+    color: #dc2626;
+}
+
+.btn-danger:hover {
+    background: #fdd;
+}
+
+.hint {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #999;
+}
+
+/* Connected View */
+.connected-view {
+    padding: 20px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid #e5e5e5;
+}
+
+.username {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+.repo-name {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 16px 8px;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.stat-label {
+    font-size: 11px;
+    color: #666;
+    margin-top: 4px;
+}
+
+/* Settings */
+.settings-section {
+    margin-bottom: 20px;
+}
+
+.settings-section h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #333;
+}
+
+.toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+    color: #333;
+}
+
+.toggle-row:last-child {
+    border-bottom: none;
+}
+
+.toggle-row input[type="checkbox"] {
+    display: none;
+}
+
+.toggle-slider {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    background: #ddd;
+    border-radius: 11px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 2px;
+    top: 2px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.toggle-row input[type="checkbox"]:checked + .toggle-slider {
+    background: #667eea;
+}
+
+.toggle-row input[type="checkbox"]:checked + .toggle-slider::before {
+    transform: translateX(18px);
+}
+
+/* Action Buttons */
+.action-buttons {
+    margin-top: 20px;
+}
+
+/* Footer */
+.footer {
+    padding: 16px 20px;
+    text-align: center;
+    border-top: 1px solid #e5e5e5;
+    background: #f9fafb;
+}
+
+.footer a {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}

@@ -36,8 +36,8 @@ app.add_middleware(
 github_service = GitHubService(
     client_id=os.getenv("GITHUB_CLIENT_ID"),
     client_secret=os.getenv("GITHUB_CLIENT_SECRET"),
-    repo_owner=os.getenv("GITHUB_REPO_OWNER"),
-    repo_name=os.getenv("GITHUB_REPO_NAME")
+    repo_owner=os.getenv("GITHUB_REPO_OWNER", "melo-maniac-29"),
+    repo_name=os.getenv("GITHUB_REPO_NAME", "leet-buddy")
 )
 
 
