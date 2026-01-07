@@ -2,11 +2,24 @@
 
 > **3,053 FREE LeetCode problems with 4,771 embedded solutions across 12 programming languages. Ready for production use.**
 
-[![Problems](https://img.shields.io/badge/Problems-3,053-brightgreen)](processed-data/final_database.json)
-[![Solutions](https://img.shields.io/badge/Solutions-4,771-blue)](processed-data/final_database.json)
-[![Languages](https://img.shields.io/badge/Languages-12-orange)](processed-data/final_database.json)
-[![Topics](https://img.shields.io/badge/Topics-71-red)](processed-data/final_database.json)
-[![Completion](https://img.shields.io/badge/Completion-100%25-success)](processed-data/final_database.json)
+<div align="center">
+
+[![Problems](https://img.shields.io/badge/Problems-3,053-brightgreen?style=for-the-badge)](processed-data/final_database.json)
+[![Solutions](https://img.shields.io/badge/Solutions-4,771-blue?style=for-the-badge)](processed-data/final_database.json)
+[![Languages](https://img.shields.io/badge/Languages-12-orange?style=for-the-badge)](processed-data/final_database.json)
+[![Completion](https://img.shields.io/badge/Completion-100%25-success?style=for-the-badge)](processed-data/final_database.json)
+
+[![Stars](https://img.shields.io/github/stars/melo-maniac-29/leet-buddy?style=for-the-badge&logo=github)](https://github.com/melo-maniac-29/leet-buddy/stargazers)
+[![Forks](https://img.shields.io/github/forks/melo-maniac-29/leet-buddy?style=for-the-badge&logo=github)](https://github.com/melo-maniac-29/leet-buddy/network/members)
+[![Issues](https://img.shields.io/github/issues/melo-maniac-29/leet-buddy?style=for-the-badge&logo=github)](https://github.com/melo-maniac-29/leet-buddy/issues)
+[![License](https://img.shields.io/github/license/melo-maniac-29/leet-buddy?style=for-the-badge)](LICENSE)
+
+[![Visitors](https://api.visitorbadge.io/api/visitors?path=melo-maniac-29%2Fleet-buddy&label=Views&countColor=%23667eea&style=for-the-badge)](https://visitorbadge.io/status?path=melo-maniac-29%2Fleet-buddy)
+[![Made with Love](https://img.shields.io/badge/Made%20with-❤️-red?style=for-the-badge)](https://github.com/melo-maniac-29/leet-buddy)
+[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](extension/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](docker-compose.yml)
+
+</div>
 
 ---
 
