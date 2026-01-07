@@ -6,7 +6,7 @@ Run this once after starting Docker containers
 
 import json
 import sys
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 import os
@@ -45,11 +45,24 @@ def migrate_database(json_file: str, database_url: str):
         topics_dict = {}
         companies_dict = {}
         
+        # Load existing topics and companies into cache
+        print("📋 Loading existing topics and companies...")
+        for topic in db.query(Topic).all():
+            topics_dict[topic.name] = topic
+        for company in db.query(Company).all():
+            companies_dict[company.name] = company
+        print(f"   Found {len(topics_dict)} topics and {len(companies_dict)} companies")
+        
         print("\n📊 Processing problems and solutions...")
         
         for idx, problem_data in enumerate(data['problems'], 1):
             if idx % 100 == 0:
                 print(f"   Processed {idx}/{len(data['problems'])} problems...")
+            
+            # Skip if problem already exists
+            existing_problem = db.query(Problem).filter_by(problem_id=problem_data['id']).first()
+            if existing_problem:
+                continue
             
             # Create problem
             problem = Problem(
@@ -114,15 +127,15 @@ def migrate_database(json_file: str, database_url: str):
         # Update metadata
         print("\n🔄 Updating metadata...")
         db.execute(
-            "UPDATE database_metadata SET value = :val, updated_at = NOW() WHERE key = 'total_problems'",
+            text("UPDATE database_metadata SET value = :val, updated_at = NOW() WHERE key = 'total_problems'"),
             {"val": str(db.query(Problem).count())}
         )
         db.execute(
-            "UPDATE database_metadata SET value = :val, updated_at = NOW() WHERE key = 'total_solutions'",
+            text("UPDATE database_metadata SET value = :val, updated_at = NOW() WHERE key = 'total_solutions'"),
             {"val": str(db.query(Solution).count())}
         )
         db.execute(
-            "UPDATE database_metadata SET value = :val, updated_at = NOW() WHERE key = 'last_sync'",
+            text("UPDATE database_metadata SET value = :val, updated_at = NOW() WHERE key = 'last_sync'"),
             {"val": datetime.now().isoformat()}
         )
         db.commit()

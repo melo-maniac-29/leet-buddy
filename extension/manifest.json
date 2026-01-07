@@ -25,7 +25,7 @@
     "https://leetcode.cn/*",
     "https://api.github.com/*",
     "https://github.com/*",
-    "http://localhost:8000/*"
+    "http://localhost:8001/*"
   ],
   
   "content_scripts": [

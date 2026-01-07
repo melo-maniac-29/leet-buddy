@@ -1,16 +1,23 @@
 // Background service worker for LeetBuddy extension
 
-// GitHub OAuth configuration (ONLY Client ID - Secret stays on GitHub!)
-const GITHUB_CLIENT_ID = 'YOUR_GITHUB_CLIENT_ID'; // Get from https://github.com/settings/developers
+// Load configuration
+importScripts('../config.js');
+
+// GitHub OAuth configuration (from config)
+const GITHUB_CLIENT_ID = CONFIG.GITHUB_CLIENT_ID;
 const GITHUB_REDIRECT_URI = chrome.identity.getRedirectURL('github');
 
 // API endpoints
-const LEETBUDDY_API = 'http://localhost:8000';
+const LEETBUDDY_API = CONFIG.API_URL;
 const GITHUB_API = 'https://api.github.com';
 
 // Main LeetBuddy repository (for contributions)
-const MAIN_REPO_OWNER = 'melo-maniac-29';
-const MAIN_REPO_NAME = 'leet-buddy';
+const MAIN_REPO_OWNER = CONFIG.MAIN_REPO_OWNER;
+const MAIN_REPO_NAME = CONFIG.MAIN_REPO_NAME;
+
+// Log the redirect URI on startup (you'll need this for OAuth app setup)
+console.log('🔑 LeetBuddy Redirect URI:', GITHUB_REDIRECT_URI);
+console.log('⚠️ Add this URI to your GitHub OAuth app settings!');
 
 // Listen for messages from content scripts and popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -76,7 +83,10 @@ async function authenticateGitHub() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ code })
+            body: JSON.stringify({ 
+                code,
+                redirect_uri: GITHUB_REDIRECT_URI
+            })
         });
         
         if (!tokenResponse.ok) {

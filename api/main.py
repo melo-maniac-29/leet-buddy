@@ -219,23 +219,31 @@ async def exchange_github_token(request: dict):
     """
     try:
         code = request.get("code")
+        redirect_uri = request.get("redirect_uri")
+        
         if not code:
             raise HTTPException(status_code=400, detail="Authorization code required")
         
         # Exchange code for token using GitHub API
         import httpx
         async with httpx.AsyncClient() as client:
+            token_data = {
+                "client_id": os.getenv("GITHUB_CLIENT_ID"),
+                "client_secret": os.getenv("GITHUB_CLIENT_SECRET"),
+                "code": code
+            }
+            
+            # Add redirect_uri if provided (GitHub requires it if used in auth)
+            if redirect_uri:
+                token_data["redirect_uri"] = redirect_uri
+            
             response = await client.post(
                 "https://github.com/login/oauth/access_token",
                 headers={
                     "Accept": "application/json",
                     "Content-Type": "application/json"
                 },
-                json={
-                    "client_id": os.getenv("GITHUB_CLIENT_ID"),
-                    "client_secret": os.getenv("GITHUB_CLIENT_SECRET"),
-                    "code": code
-                }
+                json=token_data
             )
             
             if response.status_code != 200:

@@ -1,7 +1,11 @@
 from sqlalchemy import Column, Integer, String, Boolean, Text, DECIMAL, TIMESTAMP, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from database import Base
+
+try:
+    from database import Base
+except ImportError:
+    from api.database import Base
 
 # Association tables for many-to-many relationships
 problem_topics = Table(
