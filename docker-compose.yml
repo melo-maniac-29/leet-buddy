@@ -25,7 +25,7 @@ services:
     container_name: leetbuddy-api
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       DATABASE_URL: postgresql://leetbuddy_user:leetbuddy_pass_2026@postgres:5432/leetbuddy
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
