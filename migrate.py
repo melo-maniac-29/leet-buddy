@@ -53,14 +53,14 @@ def migrate_database(json_file: str, database_url: str):
             
             # Create problem
             problem = Problem(
-                problem_id=problem_data['problem_id'],
+                problem_id=problem_data['id'],
                 title=problem_data['title'],
                 title_slug=problem_data['title_slug'],
                 difficulty=problem_data['difficulty'],
                 acceptance_rate=problem_data.get('acceptance_rate'),
-                frontend_id=problem_data.get('frontend_id'),
-                is_premium=problem_data.get('is_premium', False),
-                problem_url=problem_data.get('problem_url', '')
+                frontend_id=problem_data.get('id'),  # Use id as frontend_id
+                is_premium=False,  # Only free problems
+                problem_url=problem_data.get('url', '')
             )
             
             # Add topics
@@ -85,15 +85,19 @@ def migrate_database(json_file: str, database_url: str):
             db.flush()  # Ensure problem is saved before adding solutions
             
             # Add solutions
-            for solution_data in problem_data.get('solutions', []):
-                solution = Solution(
-                    problem_id=problem_data['problem_id'],
-                    language=solution_data['language'],
-                    code=solution_data['code'],
-                    source='official',
-                    contributed_at=datetime.now()
-                )
-                db.add(solution)
+            solutions_data = problem_data.get('solutions', {})
+            if isinstance(solutions_data, dict):
+                # Solutions are organized by language
+                for language, lang_solutions in solutions_data.items():
+                    for solution_data in lang_solutions:
+                        solution = Solution(
+                            problem_id=problem_data['id'],
+                            language=language,
+                            code=solution_data['code'],
+                            source=solution_data.get('source', 'community'),
+                            contributed_at=datetime.now()
+                        )
+                        db.add(solution)
         
         # Commit all changes
         print("\n💾 Committing to database...")

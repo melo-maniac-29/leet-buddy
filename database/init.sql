@@ -59,9 +59,9 @@ CREATE TABLE solutions (
     contributed_at TIMESTAMP,
     
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
     
-    UNIQUE(problem_id, language)  -- One solution per language per problem
+    -- Removed unique constraint to allow multiple solutions per language
 );
 
 -- User progress tracking (optional - for future features)
