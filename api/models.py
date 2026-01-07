@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, Text, DECIMAL, TIMESTAMP, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, Boolean, Text, DECIMAL, TIMESTAMP, ForeignKey, Table, JSON, ARRAY
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
@@ -112,6 +112,51 @@ class UserProgress(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String(100), nullable=False, index=True)
-    problem_id = Column(Integer, ForeignKey("problems.problem_id", ondelete="CASCADE"), nullable=False)
+    problem_id = Column(Integer, ForeignKey("problems.problem_id", ondelete="CASCADE"), nullable=False, index=True)
     solved_at = Column(TIMESTAMP, default=datetime.now, index=True)
     language = Column(String(50))
+    runtime = Column(String(50))
+    memory = Column(String(50))
+    solution_code = Column(Text)
+    notes = Column(Text)
+    github_synced = Column(Boolean, default=False)
+    github_url = Column(String(500))
+
+
+class UserRoadmap(Base):
+    __tablename__ = "user_roadmaps"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(100), nullable=False, index=True)
+    roadmap_name = Column(String(100), nullable=False)
+    started_at = Column(TIMESTAMP, default=datetime.now)
+    is_active = Column(Boolean, default=True, index=True)
+    last_activity = Column(TIMESTAMP, default=datetime.now)
+
+
+class UserAISettings(Base):
+    __tablename__ = "user_ai_settings"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(100), unique=True, nullable=False)
+    api_base_url = Column(String(500), default="https://api.openai.com/v1")
+    api_key_encrypted = Column(Text)
+    model_name = Column(String(100), default="gpt-3.5-turbo")
+    enabled = Column(Boolean, default=False)
+    created_at = Column(TIMESTAMP, default=datetime.now)
+    updated_at = Column(TIMESTAMP, default=datetime.now, onupdate=datetime.now)
+
+
+class Roadmap(Base):
+    __tablename__ = "roadmaps"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), unique=True, nullable=False)
+    display_name = Column(String(200), nullable=False)
+    description = Column(Text)
+    category = Column(String(50))
+    total_problems = Column(Integer)
+    problem_ids = Column(ARRAY(Integer))
+    difficulty_distribution = Column(JSON)
+    created_at = Column(TIMESTAMP, default=datetime.now)
+

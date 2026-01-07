@@ -64,15 +64,59 @@ CREATE TABLE solutions (
     -- Removed unique constraint to allow multiple solutions per language
 );
 
--- User progress tracking (optional - for future features)
+-- User progress tracking
 CREATE TABLE user_progress (
     id SERIAL PRIMARY KEY,
-    user_id VARCHAR(100) NOT NULL,  -- GitHub ID or hashed email
+    user_id VARCHAR(100) NOT NULL,  -- GitHub username
     problem_id INTEGER REFERENCES problems(problem_id) ON DELETE CASCADE,
     solved_at TIMESTAMP DEFAULT NOW(),
     language VARCHAR(50),
+    runtime VARCHAR(50),
+    memory VARCHAR(50),
+    solution_code TEXT,
+    notes TEXT,
+    github_synced BOOLEAN DEFAULT FALSE,
+    github_url VARCHAR(500),
     
-    UNIQUE(user_id, problem_id)
+    UNIQUE(user_id, problem_id, language)  -- Allow multiple solutions per language
+);
+
+-- User roadmap selections
+CREATE TABLE user_roadmaps (
+    id SERIAL PRIMARY KEY,
+    user_id VARCHAR(100) NOT NULL,
+    roadmap_name VARCHAR(100) NOT NULL,  -- 'fraz', 'arsh', 'strivers', 'array', 'google', etc.
+    started_at TIMESTAMP DEFAULT NOW(),
+    is_active BOOLEAN DEFAULT TRUE,
+    last_activity TIMESTAMP DEFAULT NOW(),
+    
+    UNIQUE(user_id, roadmap_name)
+);
+
+-- Roadmaps metadata (pre-defined learning paths)
+CREATE TABLE roadmaps (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    display_name VARCHAR(200) NOT NULL,
+    description TEXT,
+    category VARCHAR(50) NOT NULL,  -- 'curated', 'topic', 'company'
+    total_problems INTEGER DEFAULT 0,
+    problem_ids INTEGER[],  -- Array of problem IDs for curated roadmaps
+    difficulty_distribution JSONB,  -- {"easy": 50, "medium": 100, "hard": 50}
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- User AI settings
+CREATE TABLE user_ai_settings (
+    id SERIAL PRIMARY KEY,
+    user_id VARCHAR(100) UNIQUE NOT NULL,
+    api_base_url VARCHAR(500) DEFAULT 'https://api.openai.com/v1',
+    api_key_encrypted TEXT,  -- Encrypted API key
+    model_name VARCHAR(100) DEFAULT 'gpt-3.5-turbo',
+    enabled BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Pending contributions (review queue)
@@ -104,7 +148,10 @@ CREATE INDEX idx_problems_frontend_id ON problems(frontend_id);
 CREATE INDEX idx_solutions_problem_id ON solutions(problem_id);
 CREATE INDEX idx_solutions_language ON solutions(language);
 CREATE INDEX idx_user_progress_user_id ON user_progress(user_id);
+CREATE INDEX idx_user_progress_problem_id ON user_progress(problem_id);
 CREATE INDEX idx_user_progress_solved_at ON user_progress(solved_at);
+CREATE INDEX idx_user_roadmaps_user_id ON user_roadmaps(user_id);
+CREATE INDEX idx_user_roadmaps_active ON user_roadmaps(is_active);
 CREATE INDEX idx_pending_contributions_status ON pending_contributions(status);
 
 -- Functions

@@ -6,7 +6,7 @@ Run this once after starting Docker containers
 
 import json
 import sys
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, func
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 import os
@@ -14,7 +14,7 @@ import os
 # Add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from api.models import Base, Problem, Solution, Topic, Company
+from api.models import Base, Problem, Solution, Topic, Company, Roadmap
 from api.database import DATABASE_URL
 
 
@@ -44,6 +44,11 @@ def migrate_database(json_file: str, database_url: str):
         # Track unique topics and companies
         topics_dict = {}
         companies_dict = {}
+        roadmap_problems = {
+            'leadcoding_by_fraz_250_qs_dsa_sheet': set(),
+            'arsh_goyal_280_qs_dsa_sheet': set(),
+            'strivers': set()
+        }
         
         # Load existing topics and companies into cache
         print("📋 Loading existing topics and companies...")
@@ -97,6 +102,15 @@ def migrate_database(json_file: str, database_url: str):
             db.add(problem)
             db.flush()  # Ensure problem is saved before adding solutions
             
+            # Track roadmap memberships
+            roadmaps_data = problem_data.get('roadmaps', {})
+            if 'leadcoding_by_fraz_250_qs_dsa_sheet' in roadmaps_data:
+                roadmap_problems['leadcoding_by_fraz_250_qs_dsa_sheet'].add(problem_data['id'])
+            if 'arsh_goyal_280_qs_dsa_sheet' in roadmaps_data:
+                roadmap_problems['arsh_goyal_280_qs_dsa_sheet'].add(problem_data['id'])
+            if 'strivers' in roadmaps_data:
+                roadmap_problems['strivers'].add(problem_data['id'])
+            
             # Add solutions
             solutions_data = problem_data.get('solutions', {})
             if isinstance(solutions_data, dict):
@@ -114,6 +128,54 @@ def migrate_database(json_file: str, database_url: str):
         
         # Commit all changes
         print("\n💾 Committing to database...")
+        db.commit()
+        
+        # Insert curated roadmaps metadata
+        print("\n📚 Creating curated roadmaps...")
+        from api.models import Roadmap
+        
+        roadmaps_to_insert = [
+            {
+                'name': 'Fraz',
+                'display_name': 'LeadCoding by Fraz (250 Questions)',
+                'description': 'Curated DSA sheet by Fraz covering essential interview problems',
+                'category': 'curated',
+                'total_problems': len(roadmap_problems['leadcoding_by_fraz_250_qs_dsa_sheet']),
+                'problem_ids': list(roadmap_problems['leadcoding_by_fraz_250_qs_dsa_sheet'])
+            },
+            {
+                'name': 'Arsh',
+                'display_name': 'Arsh Goyal DSA Sheet (280 Questions)',
+                'description': 'Comprehensive DSA preparation sheet by Arsh Goyal',
+                'category': 'curated',
+                'total_problems': len(roadmap_problems['arsh_goyal_280_qs_dsa_sheet']),
+                'problem_ids': list(roadmap_problems['arsh_goyal_280_qs_dsa_sheet'])
+            },
+            {
+                'name': 'Strivers',
+                'display_name': "Striver's SDE Sheet",
+                'description': 'Popular SDE interview preparation roadmap by Striver',
+                'category': 'curated',
+                'total_problems': len(roadmap_problems['strivers']),
+                'problem_ids': list(roadmap_problems['strivers'])
+            }
+        ]
+        
+        for roadmap_data in roadmaps_to_insert:
+            # Calculate difficulty distribution
+            problem_ids = roadmap_data['problem_ids']
+            difficulties = db.query(Problem.difficulty, func.count(Problem.id)).filter(
+                Problem.problem_id.in_(problem_ids)
+            ).group_by(Problem.difficulty).all()
+            
+            difficulty_dist = {diff: count for diff, count in difficulties}
+            roadmap_data['difficulty_distribution'] = difficulty_dist
+            
+            roadmap = Roadmap(**roadmap_data)
+            db.add(roadmap)
+            
+            print(f"   ✅ {roadmap_data['name']}: {roadmap_data['total_problems']} problems")
+        
         db.commit()
         
         # Print statistics

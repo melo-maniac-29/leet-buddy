@@ -15,6 +15,8 @@ from schemas import (
     FilterRequest
 )
 from github_service import GitHubService
+from routers.roadmaps import router as roadmaps_router
+from routers.ai_settings import router as ai_settings_router
 
 # Initialize FastAPI
 app = FastAPI(
@@ -31,6 +33,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register routers
+app.include_router(roadmaps_router)
+app.include_router(ai_settings_router)
 
 # GitHub service
 github_service = GitHubService(
@@ -204,7 +210,8 @@ def health_check(db: Session = Depends(get_db)):
     """Health check endpoint"""
     try:
         # Test database connection
-        db.execute("SELECT 1")
+        from sqlalchemy import text
+        db.execute(text("SELECT 1"))
         return {"status": "healthy", "database": "connected"}
     except Exception as e:
         return {"status": "unhealthy", "error": str(e)}
