@@ -39,6 +39,9 @@ desktop.ini
 *.sqlite
 *.sqlite3
 
+# Large data files
+processed-data/final_database.json
+
 # Temp files
 temp/
 tmp/
@@ -52,6 +55,10 @@ node_modules/
 .coverage
 htmlcov/
 .pytest_cache/
+
+# Test files
+test_roadmaps.json
+test_*.json
 
 # LeetHub clone (not needed)
 LeetHub-3.0/
