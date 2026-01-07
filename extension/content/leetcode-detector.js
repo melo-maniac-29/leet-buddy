@@ -102,16 +102,50 @@ async function handleSuccessfulSubmission() {
         
         console.log('📊 Submission data:', submissionData);
         
-        // Get settings
-        const { settings } = await chrome.storage.local.get(['settings']);
+        // Get user and settings
+        const { github_user, settings } = await chrome.storage.local.get(['github_user', 'settings']);
+        const userId = github_user?.login || 'guest';
         
-        // Show contribution prompt
-        showContributionPrompt(submissionData, settings);
-        
-        // Auto-sync if enabled
-        if (settings?.autoSync) {
-            await syncSolution(submissionData);
+        // 1. Save to database first
+        try {
+            const saveResponse = await fetch('http://localhost:8001/api/progress/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    problem_id: submissionData.problemId,
+                    language: submissionData.language,
+                    solution_code: submissionData.code,
+                    runtime: submissionData.runtime,
+                    memory: submissionData.memory,
+                    notes: submissionData.notes || '',
+                    github_synced: false
+                })
+            });
+            
+            if (saveResponse.ok) {
+                const saveData = await saveResponse.json();
+                console.log('✅ Progress saved to database:', saveData);
+                showNotification('Solution saved to database!', 'success');
+                
+                // 2. Auto-sync to GitHub if enabled
+                if (settings?.autoSync) {
+                    await syncSolution(submissionData, saveData.progress_id);
+                }
+            } else {
+                console.error('Failed to save progress:', await saveResponse.text());
+                showNotification('Failed to save to database', 'error');
+            }
+        } catch (error) {
+            console.error('Error saving to database:', error);
+            showNotification('Database error: ' + error.message, 'error');
         }
+        
+        // 3. Show contribution prompt if solution is new
+        const { settings: contributionSettings } = await chrome.storage.local.get(['settings']);
+        showContributionPrompt(submissionData, contributionSettings);
         
     } catch (error) {
         console.error('Error handling submission:', error);
@@ -274,7 +308,7 @@ function createContributionModal(data) {
 }
 
 // Sync solution to GitHub
-async function syncSolution(data) {
+async function syncSolution(data, progressId) {
     try {
         const response = await chrome.runtime.sendMessage({
             action: 'sync_solution',
@@ -284,6 +318,24 @@ async function syncSolution(data) {
         if (response.success) {
             console.log('✅ Synced to GitHub:', response.result);
             showNotification('Synced to GitHub!', 'success');
+            
+            // Update GitHub sync status in database
+            if (progressId && response.result?.path) {
+                try {
+                    await fetch(`http://localhost:8001/api/progress/${progressId}/github-sync`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            github_url: response.result.path
+                        })
+                    });
+                    console.log('✅ GitHub sync status updated in database');
+                } catch (err) {
+                    console.error('Failed to update GitHub sync status:', err);
+                }
+            }
         } else {
             console.error('Sync failed:', response.error);
             showNotification('Sync failed: ' + response.error, 'error');

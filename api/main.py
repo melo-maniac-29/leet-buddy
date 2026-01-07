@@ -17,6 +17,7 @@ from schemas import (
 from github_service import GitHubService
 from routers.roadmaps import router as roadmaps_router
 from routers.ai_settings import router as ai_settings_router
+from routers.progress import router as progress_router
 
 # Initialize FastAPI
 app = FastAPI(
@@ -37,6 +38,7 @@ app.add_middleware(
 # Register routers
 app.include_router(roadmaps_router)
 app.include_router(ai_settings_router)
+app.include_router(progress_router)
 
 # GitHub service
 github_service = GitHubService(
