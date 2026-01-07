@@ -119,33 +119,35 @@ async function saveSettings() {
     const { github_user } = await chrome.storage.local.get(['github_user']);
     if (github_user && aiProvider) {
         try {
-            // Backend expects: { provider, api_base_url, model_name, enabled, api_key (optional) }
+            // Backend expects: { provider, api_base_url, model_name, enabled } + api_key as query param
             const finalBaseUrl = aiBaseUrl || customUrls[aiProvider] || getDefaultBaseUrl(aiProvider);
             
-            const body = {
-                provider: aiProvider,
-                api_base_url: finalBaseUrl,
-                model_name: aiModel,
-                enabled: true
-            };
+            // Build URL with api_key as query parameter
+            const url = `${API_URL}/api/ai-settings/${github_user}/configure${aiApiKey ? '?api_key=' + encodeURIComponent(aiApiKey) : ''}`;
             
-            // Add api_key as query param or separate field as backend expects
-            const response = await fetch(`${API_URL}/api/ai-settings/${github_user}/configure`, {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
+                body: JSON.stringify({
+                    provider: aiProvider,
+                    api_base_url: finalBaseUrl,
+                    model_name: aiModel,
+                    enabled: true
+                })
             });
             
-            // Save API key separately if needed
-            if (aiApiKey && response.ok) {
-                await fetch(`${API_URL}/api/ai-settings/${github_user}/configure`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...body, api_key: aiApiKey })
-                });
+            if (!response.ok) {
+                const error = await response.json();
+                console.error('❌ Failed to save AI settings:', error);
+                alert('Failed to save AI settings: ' + (error.detail || 'Unknown error'));
+                return;
             }
+            
+            console.log('✅ AI settings saved successfully');
         } catch (error) {
-            console.error('Error saving AI settings:', error);
+            console.error('❌ Error saving AI settings:', error);
+            alert('Error saving AI settings: ' + error.message);
+            return;
         }
     }
     
@@ -757,7 +759,13 @@ async function sendAIMessage() {
     const input = document.getElementById('chatInput');
     const message = input.value.trim();
     
-    if (!message || !currentProblemData) return;
+    console.log('🔵 sendAIMessage called, message:', message);
+    console.log('🔵 currentProblemData:', currentProblemData);
+    
+    if (!message || !currentProblemData) {
+        console.log('❌ No message or problem data');
+        return;
+    }
     
     input.value = '';
     
@@ -768,10 +776,34 @@ async function sendAIMessage() {
     const loadingId = addChatMessage('assistant', '💭 Thinking...');
     
     try {
-        // Get AI settings from local storage
-        const settings = await chrome.storage.local.get(['aiProvider', 'aiBaseUrl', 'aiApiKey', 'aiModel']);
+        // Get AI settings from backend
+        const { github_user } = await chrome.storage.local.get(['github_user']);
+        console.log('🔵 github_user:', github_user);
         
-        if (!settings.aiApiKey) {
+        if (!github_user) {
+            console.log('❌ No github_user');
+            removeChatMessage(loadingId);
+            addChatMessage('assistant', '⚠️ Please connect GitHub first to use AI features.');
+            return;
+        }
+        
+        console.log('🔵 Fetching AI settings from:', `${API_URL}/api/ai-settings/${github_user}`);
+        const response = await fetch(`${API_URL}/api/ai-settings/${github_user}`);
+        console.log('🔵 AI settings response status:', response.status);
+        
+        if (!response.ok) {
+            console.log('❌ Failed to fetch AI settings');
+            removeChatMessage(loadingId);
+            addChatMessage('assistant', '⚠️ Please configure your AI settings first.');
+            showView('settings');
+            return;
+        }
+        
+        const aiSettings = await response.json();
+        console.log('🔵 AI settings:', aiSettings);
+        
+        if (!aiSettings.enabled || !aiSettings.has_api_key) {
+            console.log('❌ AI not enabled or no API key, enabled:', aiSettings.enabled, 'has_api_key:', aiSettings.has_api_key);
             removeChatMessage(loadingId);
             addChatMessage('assistant', '⚠️ Please configure your AI API key in settings first.');
             showView('settings');
@@ -788,14 +820,16 @@ async function sendAIMessage() {
         }
         context += `URL: ${currentProblemData.url}`;
         
-        // Call AI directly (not through backend)
-        const aiResponse = await callAI(message, context, settings);
+        console.log('🔵 Calling AI with context:', context);
+        
+        // Call AI with backend settings
+        const aiResponse = await callAI(message, context, aiSettings);
         
         removeChatMessage(loadingId);
         addChatMessage('assistant', aiResponse);
         
     } catch (error) {
-        console.error('AI Error:', error);
+        console.error('❌ AI Error:', error);
         removeChatMessage(loadingId);
         addChatMessage('assistant', `❌ Error: ${error.message}`);
     }
@@ -824,9 +858,12 @@ function removeChatMessage(id) {
 async function callAI(message, context, settings) {
     const fullPrompt = `${context}\n\nUser Question: ${message}\n\nProvide a helpful, concise response. Don't give the complete solution, but guide them in the right direction.`;
     
-    if (settings.aiProvider === 'openai') {
+    // Use provider from backend settings
+    const provider = settings.provider || 'openai';
+    
+    if (provider === 'openai' || provider === 'custom' || provider === 'lm_studio') {
         return await callOpenAI(fullPrompt, settings);
-    } else if (settings.aiProvider === 'anthropic') {
+    } else if (provider === 'anthropic') {
         return await callAnthropic(fullPrompt, settings);
     } else {
         throw new Error('Provider not supported yet');
@@ -834,16 +871,45 @@ async function callAI(message, context, settings) {
 }
 
 async function callOpenAI(prompt, settings) {
-    const baseUrl = settings.aiBaseUrl || 'https://api.openai.com/v1';
+    const baseUrl = settings.api_base_url || 'https://api.openai.com/v1';
+    console.log('🔵 callOpenAI - baseUrl:', baseUrl);
     
-    const response = await fetch(`${baseUrl}/chat/completions`, {
+    // For backend settings, we need to fetch the API key separately (not returned for security)
+    const { github_user } = await chrome.storage.local.get(['github_user']);
+    
+    // Try to get decrypted API key from backend
+    let apiKey = null;
+    try {
+        console.log('🔵 Fetching API key from:', `${API_URL}/api/ai-settings/${github_user}/key`);
+        const keyResponse = await fetch(`${API_URL}/api/ai-settings/${github_user}/key`);
+        console.log('🔵 Key response status:', keyResponse.status);
+        
+        if (keyResponse.ok) {
+            const keyData = await keyResponse.json();
+            apiKey = keyData.api_key;
+            console.log('✅ Got API key from backend:', apiKey ? apiKey.substring(0, 10) + '...' : 'null');
+        } else {
+            console.error('❌ Failed to fetch API key, status:', keyResponse.status);
+        }
+    } catch (e) {
+        console.error('❌ Error fetching API key:', e);
+    }
+    
+    if (!apiKey) {
+        throw new Error('API key not configured. Please re-enter your API key in settings.');
+    }
+    
+    const url = `${baseUrl}/chat/completions`;
+    console.log('🔵 Calling OpenAI API:', url);
+    
+    const response = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${settings.aiApiKey}`
+            'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-            model: settings.aiModel || 'gpt-3.5-turbo',
+            model: settings.model_name || 'gpt-4',
             messages: [
                 { role: 'system', content: 'You are a helpful coding assistant for LeetCode problems.' },
                 { role: 'user', content: prompt }
@@ -851,27 +917,47 @@ async function callOpenAI(prompt, settings) {
         })
     });
     
+    console.log('🔵 OpenAI response status:', response.status);
+    
     const data = await response.json();
+    console.log('🔵 OpenAI response data:', data);
     
     if (data.error) {
-        throw new Error(data.error.message);
+        throw new Error(data.error.message || JSON.stringify(data.error));
     }
     
     return data.choices[0].message.content;
 }
 
 async function callAnthropic(prompt, settings) {
-    const baseUrl = settings.aiBaseUrl || 'https://api.anthropic.com/v1';
+    const baseUrl = settings.api_base_url || 'https://api.anthropic.com/v1';
+    
+    // Try to get decrypted API key from backend
+    const { github_user } = await chrome.storage.local.get(['github_user']);
+    let apiKey = null;
+    try {
+        const keyResponse = await fetch(`${API_URL}/api/ai-settings/${github_user}/key`);
+        if (keyResponse.ok) {
+            const keyData = await keyResponse.json();
+            apiKey = keyData.api_key;
+        }
+    } catch (e) {
+        console.log('Could not fetch API key from backend');
+    }
+    
+    if (!apiKey) {
+        throw new Error('API key not configured. Please re-enter your API key in settings.');
+    }
     
     const response = await fetch(`${baseUrl}/messages`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-api-key': settings.aiApiKey,
+            'x-api-key': apiKey,
             'anthropic-version': '2023-06-01'
         },
         body: JSON.stringify({
-            model: settings.aiModel || 'claude-3-sonnet-20240229',
+            model: settings.model_name || 'claude-3-sonnet-20240229',
             max_tokens: 1024,
             messages: [{ role: 'user', content: prompt }]
         })
@@ -880,7 +966,7 @@ async function callAnthropic(prompt, settings) {
     const data = await response.json();
     
     if (data.error) {
-        throw new Error(data.error.message);
+        throw new Error(data.error.message || JSON.stringify(data.error));
     }
     
     return data.content[0].text;

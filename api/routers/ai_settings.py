@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
 from database import get_db
@@ -11,12 +11,16 @@ router = APIRouter(prefix="/api/ai-settings", tags=["ai-settings"])
 
 # Request/Response models
 class AIProviderConfig(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+    
     provider: str  # 'openai', 'azure', 'ollama', 'lmstudio', 'custom'
     api_base_url: str
     model_name: str
     enabled: bool = True
 
 class AISettingsResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+    
     provider: str
     api_base_url: str
     model_name: str
@@ -135,6 +139,20 @@ def get_user_ai_settings(user_id: str, db: Session = Depends(get_db)):
         created_at=settings.created_at,
         updated_at=settings.updated_at
     )
+
+@router.get("/{user_id}/key")
+def get_user_api_key(user_id: str, db: Session = Depends(get_db)):
+    """Get user's decrypted API key (for extension use)"""
+    settings = db.query(UserAISettings).filter(UserAISettings.user_id == user_id).first()
+    
+    if not settings or not settings.api_key_encrypted:
+        raise HTTPException(status_code=404, detail="API key not found")
+    
+    # TODO: Decrypt the key here
+    # For now, returning as-is (should implement encryption/decryption)
+    return {
+        "api_key": settings.api_key_encrypted
+    }
 
 @router.post("/{user_id}/configure")
 def configure_ai_provider(
