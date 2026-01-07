@@ -47,7 +47,9 @@ def migrate_database(json_file: str, database_url: str):
         roadmap_problems = {
             'leadcoding_by_fraz_250_qs_dsa_sheet': set(),
             'arsh_goyal_280_qs_dsa_sheet': set(),
-            'strivers': set()
+            'strivers': set(),
+            'NeetCode': set(),
+            'Interview_DS_Algo': set()
         }
         
         # Load existing topics and companies into cache
@@ -111,17 +113,25 @@ def migrate_database(json_file: str, database_url: str):
             if 'strivers' in roadmaps_data:
                 roadmap_problems['strivers'].add(problem_data['id'])
             
-            # Add solutions
+            # Add solutions and track roadmap sources
             solutions_data = problem_data.get('solutions', {})
             if isinstance(solutions_data, dict):
                 # Solutions are organized by language
                 for language, lang_solutions in solutions_data.items():
                     for solution_data in lang_solutions:
+                        source = solution_data.get('source', 'community')
+                        
+                        # Track NeetCode and Interview_DS_Algo roadmap membership
+                        if source == 'NeetCode':
+                            roadmap_problems['NeetCode'].add(problem_data['id'])
+                        elif source == 'Interview_DS_Algo':
+                            roadmap_problems['Interview_DS_Algo'].add(problem_data['id'])
+                        
                         solution = Solution(
                             problem_id=problem_data['id'],
                             language=language,
                             code=solution_data['code'],
-                            source=solution_data.get('source', 'community'),
+                            source=source,
                             contributed_at=datetime.now()
                         )
                         db.add(solution)
@@ -158,6 +168,22 @@ def migrate_database(json_file: str, database_url: str):
                 'category': 'curated',
                 'total_problems': len(roadmap_problems['strivers']),
                 'problem_ids': list(roadmap_problems['strivers'])
+            },
+            {
+                'name': 'NeetCode',
+                'display_name': 'NeetCode 150',
+                'description': 'Popular coding pattern problems from NeetCode covering all major topics',
+                'category': 'curated',
+                'total_problems': len(roadmap_problems['NeetCode']),
+                'problem_ids': list(roadmap_problems['NeetCode'])
+            },
+            {
+                'name': 'Interview_DS_Algo',
+                'display_name': 'Interview DS & Algorithms',
+                'description': 'Comprehensive collection of data structures and algorithms interview problems',
+                'category': 'curated',
+                'total_problems': len(roadmap_problems['Interview_DS_Algo']),
+                'problem_ids': list(roadmap_problems['Interview_DS_Algo'])
             }
         ]
         
