@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetBuddy - Problems</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .roadmap-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .filters {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .problems-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .problem-row {
+            display: grid;
+            grid-template-columns: 40px 60px 1fr 120px 100px 80px;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .problem-row:hover {
+            background: #f8f9fa;
+        }
+
+        .problem-row.completed {
+            background: #f0fdf4;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .checkbox.checked {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+
+        .problem-id {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .problem-title {
+            font-size: 15px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .problem-topics {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .topic-tag {
+            background: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 4px;
+        }
+
+        .difficulty {
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+
+        .difficulty.Easy {
+            color: #10b981;
+            background: #d1fae5;
+        }
+
+        .difficulty.Medium {
+            color: #f59e0b;
+            background: #fef3c7;
+        }
+
+        .difficulty.Hard {
+            color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .acceptance {
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .action-btn {
+            padding: 6px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #5568d3;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s;
+        }
+
+        .stats {
+            display: flex;
+            gap: 24px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .stat-item strong {
+            color: #333;
+        }
+
+        .back-button {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+
+        .back-button:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-button" onclick="history.back()">← Back to Roadmaps</button>
+
+        <div class="header">
+            <div class="header-top">
+                <div>
+                    <div class="roadmap-title" id="roadmap-name">Loading...</div>
+                    <div class="stats" id="stats"></div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="filters" style="margin-top: 16px;">
+                <button class="filter-btn active" data-filter="all" onclick="filterProblems('all')">All</button>
+                <button class="filter-btn" data-filter="Easy" onclick="filterProblems('Easy')">Easy</button>
+                <button class="filter-btn" data-filter="Medium" onclick="filterProblems('Medium')">Medium</button>
+                <button class="filter-btn" data-filter="Hard" onclick="filterProblems('Hard')">Hard</button>
+                <button class="filter-btn" data-filter="completed" onclick="filterProblems('completed')">Completed</button>
+                <button class="filter-btn" data-filter="todo" onclick="filterProblems('todo')">To Do</button>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            <div>Loading problems...</div>
+        </div>
+
+        <div class="problems-container" id="problems-container" style="display: none;">
+            <!-- Problems will be inserted here -->
+        </div>
+    </div>
+
+    <script src="problems.js"></script>
+</body>
+</html>
